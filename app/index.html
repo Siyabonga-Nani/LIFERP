@@ -21,6 +21,10 @@
             --border: rgba(255, 255, 255, 0.1);
         }
 
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
         body.light {
             --bg: #f8fafc;
             --card: rgba(255, 255, 255, 0.8);
@@ -49,6 +53,8 @@
             line-height: 1.6;
             overflow-x: hidden;
             transition: background 0.3s ease;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
         /* Scrollbar */
@@ -523,18 +529,16 @@
             .toast-container {
                 top: auto;
                 bottom: 100px;
-                left: 20px;
-                right: 20px;
+                left: 15px;
+                right: 15px;
                 align-items: center;
             }
             .toast {
                 width: 100%;
                 max-width: none;
+                padding: 14px;
             }
-        }
 
-        /* MOBILE OPTIMIZATIONS */
-        @media (max-width: 600px) {
             .topbar {
                 padding: 12px 15px;
                 gap: 10px;
@@ -542,7 +546,20 @@
 
             .topbar-main {
                 flex-wrap: wrap;
+                gap: 8px;
+            }
+
+            .age-display {
+                text-align: left;
+                width: 100%;
+                display: flex;
+                align-items: center;
                 gap: 10px;
+                margin-top: 5px;
+            }
+
+            .age-number {
+                font-size: 20px;
             }
 
             .wallet-display {
@@ -551,10 +568,11 @@
                 justify-content: flex-start;
                 gap: 15px;
                 border-top: 1px solid var(--border);
-                padding-top: 10px;
-                margin-top: 5px;
+                padding-top: 12px;
+                margin-top: 8px;
                 overflow-x: auto;
                 scrollbar-width: none;
+                -webkit-overflow-scrolling: touch;
             }
 
             .wallet-display::-webkit-scrollbar {
@@ -562,30 +580,32 @@
             }
 
             .wallet-display .stat {
-                font-size: 0.9rem;
+                font-size: 0.85rem;
                 white-space: nowrap;
+                background: var(--glass);
+                padding: 4px 10px;
+                border-radius: 8px;
             }
 
             .stat-bars-container {
                 grid-template-columns: repeat(2, 1fr);
-                gap: 8px;
+                gap: 10px;
             }
 
             .dashboard {
                 padding: 15px;
-                padding-bottom: 200px; /* Increased to ensure all content scrolls above bottom nav */
+                padding-bottom: 160px; 
                 min-height: 100vh;
-                box-sizing: border-box;
+                overflow-y: auto;
             }
 
             .grid {
-                grid-template-columns: 1fr;
+                grid-template-columns: 1fr !important;
                 gap: 15px;
-                padding-bottom: 40px;
             }
 
             .card {
-                padding: 15px;
+                padding: 16px;
                 border-radius: 16px;
             }
 
@@ -594,59 +614,56 @@
             }
 
             .bottomnav {
-                bottom: 12px;
-                width: calc(100% - 24px);
-                padding: 10px 15px;
-                padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
-                gap: 12px;
-                border-radius: 24px;
+                bottom: 15px;
+                width: 92%;
+                padding: 8px 15px;
+                padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+                gap: 10px;
+                border-radius: 20px;
                 box-shadow: 0 10px 40px rgba(0,0,0,0.6);
             }
 
-            .bottomnav::-webkit-scrollbar {
-                display: block;
-                height: 3px;
-            }
-            
-            .bottomnav::-webkit-scrollbar-thumb {
-                background: var(--accent);
-                border-radius: 10px;
-            }
-
             .navbtn {
-                min-width: 44px;
-                height: 44px;
-                font-size: 1.2rem;
+                min-width: 42px;
+                height: 42px;
+                font-size: 1.1rem;
             }
 
             .age-up-btn {
-                padding: 15px 20px;
+                padding: 16px 20px;
                 font-size: 18px;
                 margin-top: 10px;
                 border-radius: 20px;
             }
 
             #bankCardUI {
-                height: 170px !important;
-                padding: 20px !important;
+                height: 160px !important;
+                padding: 15px !important;
             }
             
             #bankCardUI div div:last-child {
-                font-size: 24px !important; /* Smaller balance text */
+                font-size: 22px !important;
             }
 
             .modal-content {
-                padding: 24px 20px;
+                padding: 20px;
                 border-radius: 24px;
                 width: 100%;
-                max-width: 95%;
-                box-sizing: border-box;
+                max-width: 100%;
+                margin: 0;
             }
 
             table {
                 display: block;
+                width: 100%;
                 overflow-x: auto;
                 white-space: nowrap;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            /* Dealership Tab Specifics */
+            .dealership-tabs-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
             }
         }
 
@@ -656,7 +673,18 @@
             }
             
             .wallet-display {
-                gap: 10px;
+                gap: 8px;
+            }
+
+            .topbar-main > div:first-child {
+                width: 100%;
+            }
+
+            .age-display {
+                justify-content: space-between;
+                background: var(--glass);
+                padding: 8px 12px;
+                border-radius: 10px;
             }
         }
     </style>
@@ -958,7 +986,7 @@
             </div>
 
             <!-- PRIMARY SELECTOR: PURCHASE TYPE -->
-            <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:10px; margin-top:20px;">
+            <div class="dealership-tabs-grid" style="display:grid; grid-template-columns: repeat(4, 1fr); gap:10px; margin-top:20px;">
                 <button id="tabBtnNew" class="primary" style="padding:15px; border-radius:12px; font-weight:bold; font-size:11px;"
                     onclick="showDealershipSubTab('newVehicles', this)">
                     ✨ SHOWROOM<br><span style="font-size:9px; opacity:0.7;">New</span>
@@ -1408,7 +1436,7 @@
             </div>
 
             <!-- PRIMARY SELECTOR -->
-            <div style="display:grid; grid-template-columns: repeat(5, 1fr); gap:10px; margin-top:20px;">
+            <div class="dealership-tabs-grid" style="display:grid; grid-template-columns: repeat(5, 1fr); gap:10px; margin-top:20px;">
                 <button class="nav-tab-btn active" onclick="setPetSubTab('overview', this)">🐾 MY PETS</button>
                 <button class="nav-tab-btn secondary" onclick="setPetSubTab('shop', this)">🛒 ADOPT</button>
                 <button class="nav-tab-btn secondary" onclick="setPetSubTab('accessories', this)">🍼 ITEMS</button>
@@ -2111,7 +2139,10 @@
         function openTab(id) {
             document.querySelectorAll('.dashboard').forEach(d => d.classList.remove('active'));
             const target = document.getElementById(id);
-            if (target) target.classList.add('active');
+            if (target) {
+                target.classList.add('active');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
 
             // Update Nav Buttons
             document.querySelectorAll('.navbtn').forEach(btn => {
