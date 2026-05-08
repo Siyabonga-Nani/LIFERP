@@ -55,22 +55,30 @@
             transition: background 0.3s ease;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE and Edge */
         }
 
-        /* Scrollbar */
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
+        /* Nuclear Scrollbar Hide */
+        * {
+            scrollbar-width: none !important;
+            -ms-overflow-style: none !important;
         }
 
-        ::-webkit-scrollbar-track {
-            background: transparent;
+        *::-webkit-scrollbar {
+            display: none !important;
+            width: 0 !important;
+            height: 0 !important;
         }
 
-        ::-webkit-scrollbar-thumb {
-            background: var(--border);
-            border-radius: 10px;
+        html, body {
+            overflow-x: hidden !important;
+            width: 100%;
+            max-width: 100%;
+            position: relative;
         }
+
+        /* Removed scrollbar track/thumb to ensure complete invisibility */
 
         .topbar {
             display: flex;
@@ -252,7 +260,9 @@
         }
 
         .bottomnav::-webkit-scrollbar {
-            display: none;
+            display: none !important;
+            width: 0 !important;
+            height: 0 !important;
         }
 
         /* Chrome/Safari */
@@ -621,6 +631,19 @@
                 gap: 10px;
                 border-radius: 20px;
                 box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: thin;
+            }
+
+            .bottomnav::-webkit-scrollbar {
+                display: block;
+                height: 3px;
+            }
+            
+            .bottomnav::-webkit-scrollbar-thumb {
+                background: var(--accent);
+                border-radius: 10px;
             }
 
             .navbtn {
@@ -1455,21 +1478,26 @@
             <!-- OVERVIEW -->
             <div class="card">
                 <h3>₿ Crypto Dashboard</h3>
-                <div class="list-item"><span>Wallet Balance</span> R<span id="cryptoWallet">0</span></div>
-                <div class="list-item"><span>Bitcoin</span> <span id="btcAmount">0</span> BTC</div>
-                <div class="list-item"><span>Ethereum</span> <span id="ethAmount">0</span> ETH</div>
+                <div class="list-item"><span>Wallet Balance</span> <div>R<span id="cryptoWallet">0</span> <button class="secondary" style="display:inline; width:auto; padding:2px 8px; margin:0 0 0 8px; font-size:10px; border-color:var(--success); color:var(--success);" onclick="withdrawCrypto()">Withdraw</button></div></div>
+                <div class="list-item"><span>Bitcoin</span> <div><span id="btcAmount">0</span> BTC <small style="opacity:0.6">(R<span id="btcPrice">0</span>)</small></div></div>
+                <div class="list-item"><span>Ethereum</span> <div><span id="ethAmount">0</span> ETH <small style="opacity:0.6">(R<span id="ethPrice">0</span>)</small></div></div>
+                <div class="list-item"><span>Mining Rigs</span> <span id="rigCountDisplay">0</span></div>
                 <div class="list-item"><span>Market Multiplier</span> <span id="cryptoMarket">1</span>x</div>
             </div>
 
             <!-- CRYPTO ACTIONS -->
             <div class="card">
-                <h3>🚀 Actions</h3>
-                <button onclick="buyCrypto('BTC', 0.01)">Buy 0.01 BTC</button>
-                <button onclick="buyCrypto('ETH', 0.1)">Buy 0.1 ETH</button>
-                <button onclick="sellCrypto('BTC', 0.01)">Sell 0.01 BTC</button>
-                <button onclick="sellCrypto('ETH', 0.1)">Sell 0.1 ETH</button>
-                <button onclick="mineCrypto('BTC')">Mine BTC</button>
-                <button onclick="mineCrypto('ETH')">Mine ETH</button>
+                <h3>🚀 Trading & Mining</h3>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:15px;">
+                    <button onclick="buyCrypto('BTC', 0.01)">Buy 0.01 BTC</button>
+                    <button onclick="buyCrypto('ETH', 0.1)">Buy 0.1 ETH</button>
+                    <button class="secondary" onclick="sellCrypto('BTC', 0.01)">Sell 0.01 BTC</button>
+                    <button class="secondary" onclick="sellCrypto('ETH', 0.1)">Sell 0.1 ETH</button>
+                </div>
+                <div style="border-top:1px solid var(--border); padding-top:15px;">
+                    <button style="background:linear-gradient(135deg, #f59e0b, #d97706);" onclick="mineCrypto('BTC')">⛏️ Mine BTC</button>
+                    <button style="background:linear-gradient(135deg, #6366f1, #4f46e5);" onclick="mineCrypto('ETH')">⛏️ Mine ETH</button>
+                </div>
             </div>
         </div>
     </div>
@@ -1589,10 +1617,31 @@
 
     <div id="settings" class="dashboard">
         <div class="card">
-            âš™ï¸ Settings<br>
-            <button onclick="setTheme('dark')">Dark</button>
-            <button onclick="setTheme('light')">Light</button>
-            <button onclick="setTheme('future')">Future</button>
+            <h3>⚙️ Theme Settings</h3>
+            <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; margin-bottom:20px;">
+                <button onclick="setTheme('dark')">Dark</button>
+                <button onclick="setTheme('light')">Light</button>
+                <button onclick="setTheme('future')">Future</button>
+            </div>
+            
+            <h3>💾 Save Management</h3>
+            <button onclick="manualSave()" style="background:var(--success);">Manual Save</button>
+            <button id="autoSaveBtn" class="secondary" onclick="toggleAutoSave()">Auto-Save: ON</button>
+            
+            <h3>💀 Danger Zone</h3>
+            <button onclick="openRestartModal()" style="background:var(--danger); border-color:var(--danger); margin-top:10px;">Restart Game (Die)</button>
+        </div>
+    </div>
+
+    <!-- RESTART CONFIRMATION MODAL -->
+    <div id="restartModal" class="modal-overlay" style="z-index: 5000;">
+        <div class="card" style="width:90%; max-width:400px; padding:30px; text-align:center; border:2px solid var(--danger); background: var(--card);">
+            <h2 style="color:var(--danger); margin-top:0;">💀 PERMANENT DEATH</h2>
+            <p style="color: white; margin-bottom: 20px;">Are you sure you want to die and restart? <br><br><b>ALL PROGRESS WILL BE WIPED FOREVER.</b></p>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-top:25px;">
+                <button class="secondary" onclick="closeRestartModal()">Cancel</button>
+                <button style="background:var(--danger); color: white;" onclick="confirmRestart()">Yes, Restart</button>
+            </div>
         </div>
     </div>
 
@@ -1652,7 +1701,8 @@
                 { id: 'phone', name: "SmartPhone 15 Pro", icon: "📱", cost: 12000, desc: "The latest flagship device.", benefits: { happiness: 10, smarts: 2 } },
                 { id: 'laptop', name: "MacBook Ultra", icon: "💻", cost: 25000, desc: "Power for professionals.", benefits: { smarts: 15, happiness: 5 } },
                 { id: 'gamingpc', name: "RTX 5090 Rig", icon: "🖥️", cost: 45000, desc: "Ultimate gaming performance.", benefits: { happiness: 40, smarts: 5 } },
-                { id: 'vr', name: "MetaVerse Headset", icon: "🥽", cost: 15000, desc: "Immersive VR experience.", benefits: { happiness: 25, smarts: 10 } }
+                { id: 'vr', name: "MetaVerse Headset", icon: "🥽", cost: 15000, desc: "Immersive VR experience.", benefits: { happiness: 25, smarts: 10 } },
+                { id: 'mining_rig', name: "Pro Miner Rig", icon: "⛏️", cost: 75000, desc: "High-performance crypto mining hardware.", benefits: { cryptoRigs: 1 } }
             ]
         },
         furniture: {
@@ -1864,7 +1914,8 @@
             casino: { money: 1000, games: ["Slots 1", "Slots 2", "Blackjack", "Roulette", "Poker 1", "Poker 2", "Dice Roll 1", "Dice Roll 2", "Baccarat 1", "Baccarat 2", "Wheel of Fortune", "Coin Flip", "Scratch Card 1", "Scratch Card 2", "Keno 1", "Keno 2", "Slot Mega", "Slot Mini", "Roulette VIP", "Blackjack VIP", "Poker VIP", "Dice Challenge", "Lucky 7", "Wheel Spin 2", "Scratch Card 3", "Keno 3", "High Roller Slots", "Jackpot Slots", "Roulette Extreme", "Poker Extreme", "Baccarat Extreme"] },
             licenses: { drivers: false, bike: false, pilot: false, captain: false, mechanic: false },
             taxes: { unpaid: 0 },
-            court: { activeTrial: null, houseArrest: 0, bail: 0 }
+            court: { activeTrial: null, houseArrest: 0, bail: 0 },
+            settings: { autoSave: true }
         };
 
         // ================= DATA =================
@@ -2133,7 +2184,8 @@
             renderMissions();
             renderIllegal();
             renderCasino();
-            saveGame();
+            renderSettings();
+            if (state.settings && state.settings.autoSave) saveGame();
         }
 
         function openTab(id) {
@@ -3053,6 +3105,7 @@
                     else if (stat === 'happiness') state.happiness = Math.min(100, state.happiness + val);
                     else if (stat === 'smarts') state.smarts = Math.min(100, state.smarts + val);
                     else if (stat === 'looks') state.looks = Math.min(100, state.looks + val);
+                    else if (stat === 'cryptoRigs') state.assets.cryptoRigs = (state.assets.cryptoRigs || 0) + val;
                 }
 
                 state.inventory.push(item.name);
@@ -3136,6 +3189,71 @@
             document.getElementById("btcAmount").innerText = state.crypto.BTC.toFixed(4);
             document.getElementById("ethAmount").innerText = state.crypto.ETH.toFixed(4);
             document.getElementById("cryptoMarket").innerText = state.crypto.marketMultiplier.toFixed(2);
+            
+            // Update prices if elements exist (adding them in HTML update)
+            if (document.getElementById("btcPrice")) document.getElementById("btcPrice").innerText = Math.floor(cryptoPrices.BTC).toLocaleString();
+            if (document.getElementById("ethPrice")) document.getElementById("ethPrice").innerText = Math.floor(cryptoPrices.ETH).toLocaleString();
+            if (document.getElementById("rigCountDisplay")) document.getElementById("rigCountDisplay").innerText = state.assets.cryptoRigs || 0;
+        }
+
+        function buyCrypto(symbol, amount) {
+            const price = cryptoPrices[symbol] * state.crypto.marketMultiplier;
+            const cost = price * amount;
+            
+            if (state.cash >= cost) {
+                state.cash -= cost;
+                state.crypto[symbol] += amount;
+                logEvent(`₿ Bought ${amount} ${symbol} for R${Math.floor(cost).toLocaleString()}`, true);
+                updateUI();
+            } else {
+                logEvent(`❌ Not enough cash to buy ${amount} ${symbol} (Needs R${Math.floor(cost).toLocaleString()})`, true);
+            }
+        }
+
+        function sellCrypto(symbol, amount) {
+            if (state.crypto[symbol] >= amount) {
+                const price = cryptoPrices[symbol] * state.crypto.marketMultiplier;
+                const gain = price * amount;
+                
+                state.crypto[symbol] -= amount;
+                state.crypto.wallet += gain;
+                logEvent(`₿ Sold ${amount} ${symbol} for R${Math.floor(gain).toLocaleString()}`, true);
+                updateUI();
+            } else {
+                logEvent(`❌ Not enough ${symbol} to sell!`, true);
+            }
+        }
+
+        function withdrawCrypto() {
+            const amt = state.crypto.wallet;
+            if (amt > 0) {
+                state.crypto.wallet = 0;
+                state.cash += amt;
+                logEvent(`🏦 Withdrew R${Math.floor(amt).toLocaleString()} from Crypto Wallet`, true);
+                updateUI();
+            } else {
+                logEvent("❌ Nothing to withdraw!", true);
+            }
+        }
+
+        function mineCrypto(symbol) {
+            const rigs = state.assets.cryptoRigs || 0;
+            if (rigs <= 0) {
+                logEvent("❌ You need a Mining Rig to mine crypto! Buy one in the Shop.", true);
+                return;
+            }
+
+            // Mining chance and amount based on rigs
+            const success = Math.random() > 0.3;
+            if (success) {
+                const yieldAmt = (symbol === 'BTC' ? 0.0005 : 0.005) * rigs;
+                state.crypto[symbol] += yieldAmt;
+                logEvent(`⛏️ Mined ${yieldAmt.toFixed(5)} ${symbol} using ${rigs} rigs!`, true);
+                gainXP(5);
+            } else {
+                logEvent(`⛏️ Mining attempt failed. Rigs are still processing...`, true);
+            }
+            updateUI();
         }
 
         function setPetSubTab(tab, btn) {
@@ -5473,6 +5591,39 @@
         }
 
         function saveGame() { localStorage.setItem("empireTycoonSave", JSON.stringify(state)); }
+        function manualSave() {
+            saveGame();
+            logEvent("💾 Game Saved Successfully!", true);
+        }
+
+        function toggleAutoSave() {
+            if (!state.settings) state.settings = { autoSave: true };
+            state.settings.autoSave = !state.settings.autoSave;
+            logEvent(`🔄 Auto-Save turned ${state.settings.autoSave ? 'ON' : 'OFF'}`, true);
+            updateUI();
+        }
+
+        function openRestartModal() {
+            document.getElementById("restartModal").style.display = "flex";
+        }
+
+        function closeRestartModal() {
+            document.getElementById("restartModal").style.display = "none";
+        }
+
+        function confirmRestart() {
+            localStorage.removeItem("empireTycoonSave");
+            location.reload();
+        }
+
+        function renderSettings() {
+            const btn = document.getElementById("autoSaveBtn");
+            if (btn && state.settings) {
+                btn.innerText = `Auto-Save: ${state.settings.autoSave ? 'ON' : 'OFF'}`;
+                btn.style.color = state.settings.autoSave ? 'var(--success)' : 'var(--danger)';
+                btn.style.borderColor = state.settings.autoSave ? 'var(--success)' : 'var(--danger)';
+            }
+        }
         function loadGame() {
             const saved = localStorage.getItem("empireTycoonSave");
             if (saved) {
