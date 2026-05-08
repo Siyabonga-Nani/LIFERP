@@ -1082,7 +1082,6 @@
                 <div class="list-item"><span>👥 Employees</span> <span id="empCount">0</span></div>
                 <div class="list-item"><span>👔 Managers</span> <span id="mgrCount">0</span></div>
                 <div class="list-item"><span>⭐ Reputation</span> <span id="rep">1.0</span></div>
-                <button onclick="collectBusinessIncome()">💰 Collect Profit</button>
             </div>
 
             <div class="card">
@@ -1263,46 +1262,100 @@
         </div>
     </div>
     <div id="map" class="dashboard">
-        <div class="grid">
-            <!-- MAP OVERVIEW -->
-            <div class="card">
-                <h3>🗺️ Map Overview</h3>
-                <div class="list-item"><span>Current Location</span> <span id="currentLocation">City Center</span></div>
-                <div class="list-item"><span>Total Locations</span> <span id="totalLocations">5</span></div>
+        <div class="card" style="grid-column: 1 / -1; margin-bottom:15px; border-bottom: 3px solid var(--accent); background: linear-gradient(135deg, rgba(96, 165, 250, 0.1) 0%, rgba(96, 165, 250, 0.05) 100%);">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <h3 style="margin:0; font-size:20px; letter-spacing:1px;">🌍 GLOBAL NAVIGATION</h3>
+                    <p style="opacity:0.6; font-size:12px; margin:5px 0 0 0;">Current: <span id="currentRegionLabel" style="color:var(--accent); font-weight:bold;">South Africa</span></p>
+                </div>
             </div>
 
-            <!-- MAP ACTIONS -->
-            <div class="card">
-                <h3>🚗 Travel & Explore</h3>
-                <select id="locationSelect">
-                    <option value="City Center">City Center</option>
-                    <option value="Residential Area">Residential Area</option>
-                    <option value="Business District">Business District</option>
-                    <option value="Industrial Zone">Industrial Zone</option>
-                    <option value="Airport">Airport</option>
-                    <option value="London">London (Req: Passport & Visa)</option>
-                    <option value="New York">New York (Req: Passport & Visa)</option>
-                    <option value="Dubai">Dubai (Req: Passport & Visa)</option>
-                    <option value="Tokyo">Tokyo (Req: Passport & Visa)</option>
-                </select>
-                <button onclick="travelToLocation()">Travel</button>
-                <button onclick="discoverLocation()">Discover New Location</button>
+            <!-- MAP TABS -->
+            <div class="dealership-tabs-grid" style="display:grid; grid-template-columns: repeat(2, 1fr); gap:10px; margin-top:20px;">
+                <button id="tabBtnWorldMap" class="primary" style="padding:15px; border-radius:12px; font-weight:bold; font-size:11px;"
+                    onclick="showMapSubTab('worldMap', this)">
+                    🗺️ WORLD MAP<br><span style="font-size:9px; opacity:0.7;">Global View</span>
+                </button>
+                <button id="tabBtnMigration" class="secondary" style="padding:15px; border-radius:12px; font-weight:bold; font-size:11px;"
+                    onclick="showMapSubTab('migration', this)">
+                    🛂 MIGRATION<br><span style="font-size:9px; opacity:0.7;">International Travel</span>
+                </button>
+            </div>
+        </div>
+
+        <div id="mapSubContent" class="grid" style="grid-template-columns: 1fr; gap:0;">
+            <!-- WORLD MAP SUB-TAB -->
+            <div id="worldMapTab" class="map-sub-tab">
+                <div class="grid" style="grid-template-columns: 2fr 1fr;">
+                    <!-- SVG MAP CONTAINER -->
+                    <div class="card" style="padding:0; overflow:hidden; position:relative; min-height:400px; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.2);">
+                        <div id="worldMapSvgContainer" style="width:100%; height:100%; display:flex; align-items:center; justify-content:center;">
+                            <!-- SVG Map will be injected here -->
+                            <div class="loader"></div>
+                        </div>
+                        <div id="mapTooltip" style="position:absolute; pointer-events:none; background:var(--surface-light); border:1px solid var(--accent); padding:10px; border-radius:8px; display:none; z-index:100; box-shadow:0 4px 12px rgba(0,0,0,0.5);">
+                            <b id="tooltipCountry">Country</b><br>
+                            <span id="tooltipStats" style="font-size:10px; opacity:0.7;">Stats...</span>
+                        </div>
+                    </div>
+
+                    <!-- COUNTRY DETAILS SIDEBAR -->
+                    <div class="card" id="countryDetailsPanel">
+                        <div id="noCountrySelected" style="text-align:center; padding:40px; opacity:0.5;">
+                            <div style="font-size:40px; margin-bottom:15px;">🌐</div>
+                            <p>Select a region on the map to view detailed economic and legal profiles.</p>
+                        </div>
+                        <div id="countryInfo" style="display:none;">
+                            <div style="display:flex; align-items:center; gap:15px; margin-bottom:20px;">
+                                <div id="detailFlag" style="font-size:48px;">🇿🇦</div>
+                                <div>
+                                    <h2 id="detailName" style="margin:0;">South Africa</h2>
+                                    <div id="detailTagline" style="font-size:12px; opacity:0.6;">Home Region</div>
+                                </div>
+                            </div>
+                            
+                            <div class="list-item"><span>💰 Tax Rate</span> <b id="detailTax" style="color:var(--danger);">15%</b></div>
+                            <div class="list-item"><span>📈 Profit Multiplier</span> <b id="detailProfit" style="color:var(--success);">1.0x</b></div>
+                            <div class="list-item"><span>🏠 Living Cost</span> <b id="detailLiving">1.0x</b></div>
+                            <div class="list-item"><span>🛂 Visa Difficulty</span> <b id="detailVisa">Low</b></div>
+                            
+                            <p id="detailDesc" style="font-size:13px; opacity:0.8; margin-top:15px; line-height:1.5;">Description goes here...</p>
+                            
+                            <button id="migrateBtn" style="width:100%; margin-top:20px; background:var(--accent); font-weight:bold; padding:15px;" onclick="handleMigrateAction()">
+                                PREPARE MIGRATION
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <!-- LOCATION LIST -->
-            <div class="card">
-                <h3>📍 Locations</h3>
-                <ul id="locationList">
-                    <li>City Center</li>
-                    <li>Residential Area</li>
-                    <li>Business District</li>
-                    <li>Industrial Zone</li>
-                    <li>Airport</li>
-                    <li>London</li>
-                    <li>New York</li>
-                    <li>Dubai</li>
-                    <li>Tokyo</li>
-                </ul>
+            <!-- MIGRATION SUB-TAB -->
+            <div id="migrationTab" class="map-sub-tab" style="display:none;">
+                <div class="grid">
+                    <div class="card">
+                        <h3>🛂 Travel Documents</h3>
+                        <div class="list-item"><span>Passport Status</span> <b id="migPassportStatus" style="color:var(--danger);">NONE</b></div>
+                        <div class="list-item"><span>Active Visas</span> <span id="migActiveVisas">South Africa</span></div>
+                        <button class="secondary" style="width:100%; margin-top:15px;" onclick="openTab('court')">Apply for Documents</button>
+                    </div>
+
+                    <div class="card">
+                        <h3>🚗 Local Travel (Same Country)</h3>
+                        <div style="margin-bottom:15px;">
+                            <label style="font-size:12px; opacity:0.6; display:block; margin-bottom:8px;">Select Destination:</label>
+                            <select id="localLocationSelect" style="width:100%; padding:12px; border-radius:10px; background:rgba(255,255,255,0.05); color:white; border:1px solid rgba(255,255,255,0.1);">
+                                <!-- Local locations injected here -->
+                            </select>
+                        </div>
+                        <button style="width:100%;" onclick="travelToLocalLocation()">Drive to Destination</button>
+                    </div>
+
+                    <div class="card" style="grid-column: 1 / -1;">
+                        <h3>🗺️ Discovery</h3>
+                        <p style="font-size:12px; opacity:0.6; margin-bottom:15px;">Explore the wilderness to find hidden spots and unique opportunities.</p>
+                        <button class="secondary" style="width:100%;" onclick="discoverLocation()">Explore Uncharted Territory</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -1325,10 +1378,12 @@
                 <table id="leaderboardTable" style="width:100%; border-collapse: collapse;">
                     <thead>
                         <tr style="border-bottom: 1px solid var(--accent);">
-                            <th style="text-align:left;">#</th>
-                            <th style="text-align:left;">Player</th>
-                            <th style="text-align:left;">Level</th>
-                            <th style="text-align:left;">Net Worth</th>
+                            <th style="text-align:left; padding:10px;">#</th>
+                            <th style="text-align:left; padding:10px;">Player</th>
+                            <th style="text-align:left; padding:10px;">Net Worth</th>
+                            <th style="text-align:left; padding:10px;">Bank</th>
+                            <th style="text-align:left; padding:10px;">Assets</th>
+                            <th style="text-align:left; padding:10px;">Wealth</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -1823,7 +1878,16 @@
             wanted: 0,
             luck: 1,
             history: ["Baby: You were born in South Africa."],
-            location: { country: "South Africa", city: "Johannesburg", multiplier: 1.0, current: "South Africa", passport: false, visas: ["South Africa"] },
+            location: { 
+                country: "South Africa", 
+                city: "Johannesburg", 
+                multiplier: 1.0, 
+                current: "South Africa", 
+                passport: false, 
+                visas: ["South Africa"],
+                residency: "Citizen",
+                travelHistory: []
+            },
             bankSystem: {
                 loan: 0, interestRate: 0.05, savingsRate: 0.02, 
                 activeInvestments: [], // NEW: Track fixed deposits
@@ -1882,14 +1946,19 @@
                 activeTab: 'overview'
             },
             hospital: { patients: [], staff: { doctors: 0, nurses: 0 }, revenue: 0, level: 1 },
-            map: { current: "City Center", locations: ["City Center", "Residential Area", "Business District", "Industrial Zone", "Airport", "London", "New York", "Dubai", "Tokyo"] },
+            map: { 
+                current: "City Center", 
+                country: "South Africa",
+                discoveredLocations: ["City Center", "Residential Area", "Business District", "Industrial Zone", "Airport"],
+                internationalDestinations: ["London", "New York", "Dubai", "Tokyo", "Zurich", "Singapore"] 
+            },
             players: [
-                { name: "Player", level: 1, netWorth: 0 },
-                { name: "Player1", level: 10, netWorth: 50000 },
-                { name: "Player2", level: 8, netWorth: 30000 },
-                { name: "Player3", level: 7, netWorth: 25000 },
-                { name: "Player4", level: 5, netWorth: 15000 },
-                { name: "Player5", level: 3, netWorth: 8000 }
+                { name: "Player", level: 1, netWorth: 0, bank: 0, biz: 0, items: 0, investments: 0 },
+                { name: "Elon M.", level: 100, netWorth: 250000000, bank: 50000000, biz: 15, items: 25, investments: 150000000 },
+                { name: "Warren B.", level: 95, netWorth: 180000000, bank: 80000000, biz: 8, items: 10, investments: 90000000 },
+                { name: "Jeff B.", level: 90, netWorth: 150000000, bank: 30000000, biz: 12, items: 30, investments: 100000000 },
+                { name: "Player1", level: 10, netWorth: 50000, bank: 20000, biz: 1, items: 5, investments: 10000 },
+                { name: "Player2", level: 8, netWorth: 30000, bank: 15000, biz: 0, items: 3, investments: 5000 },
             ],
             cases: [
                 { caseId: 1, title: "Tax Evasion", player: "Player1", status: "Pending", fine: 5000 },
@@ -2070,11 +2139,13 @@
         ];
 
         const countries = [
-            { name: "South Africa", flag: "🇿🇦", tax: 0.15, profit: 1.0, visaCost: 0, desc: "Your home country. Stable and familiar." },
-            { name: "USA", flag: "🇺🇸", tax: 0.25, profit: 1.5, visaCost: 5000, desc: "Land of opportunity. High profits, high taxes." },
-            { name: "United Kingdom", flag: "🇬🇧", tax: 0.20, profit: 1.2, visaCost: 3500, desc: "Historical business hub. Solid returns." },
-            { name: "Japan", flag: "🇯🇵", tax: 0.18, profit: 1.3, visaCost: 4000, desc: "Tech capital. Cutting-edge efficiency." },
-            { name: "UAE", flag: "🇦🇪", tax: 0.05, profit: 1.8, visaCost: 15000, desc: "Tax haven. Extreme luxury and massive scale." }
+            { id: "ZA", name: "South Africa", flag: "🇿🇦", tax: 0.15, profit: 1.0, livingCost: 1.0, visaCost: 0, difficulty: 1, color: "#34d399", desc: "Your home country. Stable and familiar." },
+            { id: "US", name: "USA", flag: "🇺🇸", tax: 0.28, profit: 1.6, livingCost: 1.8, visaCost: 5000, difficulty: 5, color: "#60a5fa", desc: "Land of opportunity. High profits, high taxes." },
+            { id: "GB", name: "United Kingdom", flag: "🇬🇧", tax: 0.22, profit: 1.3, livingCost: 1.6, visaCost: 3500, difficulty: 4, color: "#818cf8", desc: "Historical business hub. Solid returns." },
+            { id: "JP", name: "Japan", flag: "🇯🇵", tax: 0.20, profit: 1.4, livingCost: 1.5, visaCost: 4000, difficulty: 6, color: "#f87171", desc: "Tech capital. Cutting-edge efficiency." },
+            { id: "AE", name: "UAE", flag: "🇦🇪", tax: 0.05, profit: 2.0, livingCost: 2.5, visaCost: 15000, difficulty: 8, color: "#fbbf24", desc: "Tax haven. Extreme luxury and massive scale." },
+            { id: "CH", name: "Switzerland", flag: "🇨🇭", tax: 0.12, profit: 1.8, livingCost: 2.2, visaCost: 8000, difficulty: 7, color: "#e2e8f0", desc: "Banking paradise. Low taxes, high stability." },
+            { id: "SG", name: "Singapore", flag: "🇸🇬", tax: 0.17, profit: 1.7, livingCost: 1.9, visaCost: 6000, difficulty: 5, color: "#f472b6", desc: "Global trading hub. Efficient and wealthy." }
         ];
 
         function updateStockPrices() {
@@ -2660,10 +2731,11 @@
 
         function collectBusinessProfit(idx) {
             const b = state.business.owned[idx];
-            const profit = (b.baseIncome || 100) * b.level;
+            const profitMult = state.location.multiplier || 1.0;
+            const profit = Math.floor((b.baseIncome || 100) * b.level * profitMult);
             state.cash += profit;
             state.business.lastCollection[idx] = Date.now();
-            logEvent(`💰 Collected R${profit.toLocaleString()} profit from ${b.name}`);
+            logEvent(`💰 Collected R${profit.toLocaleString()} profit from ${b.name} (${profitMult}x Regional Bonus)`);
             updateUI();
         }
 
@@ -3530,16 +3602,284 @@
             document.getElementById("hospitalRevenue").innerText = (state.hospital.revenue || 0).toLocaleString();
         }
 
-        function renderMapUI() { document.getElementById("currentLocation").innerText = state.map.current; }
+        function showMapSubTab(tab, btn) {
+            document.querySelectorAll('.map-sub-tab').forEach(t => t.style.display = 'none');
+            const target = document.getElementById(tab + 'Tab');
+            if (target) target.style.display = 'block';
+
+            const container = btn.parentElement;
+            container.querySelectorAll('button').forEach(b => {
+                b.classList.remove('primary');
+                b.classList.add('secondary');
+            });
+            btn.classList.add('primary');
+            btn.classList.remove('secondary');
+
+            if (tab === 'worldMap') renderWorldMap();
+            else renderMigrationTab();
+        }
+
+        let selectedCountryId = null;
+
+        function renderWorldMap() {
+            const container = document.getElementById("worldMapSvgContainer");
+            if (!container) return;
+
+            // Simplified World Map SVG (just placeholders for our defined countries)
+            // In a real app, we'd use a full GeoJSON/SVG world map.
+            // Here we'll create a stylized representational map.
+            
+            const mapHtml = `
+            <svg viewBox="0 0 800 400" style="width:100%; height:100%; cursor:crosshair;">
+                <defs>
+                    <filter id="glow">
+                        <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+                        <feMerge>
+                            <feMergeNode in="coloredBlur"/>
+                            <feMergeNode in="SourceGraphic"/>
+                        </feMerge>
+                    </filter>
+                </defs>
+                <!-- Background / Ocean -->
+                <rect width="800" height="400" fill="transparent" />
+                
+                <!-- Stylized Landmasses (Simplified) -->
+                <!-- Africa -->
+                <path d="M400,150 L450,150 L480,250 L420,350 L380,250 Z" fill="rgba(255,255,255,0.05)" />
+                <!-- Americas -->
+                <path d="M100,80 L250,80 L220,180 L280,350 L150,350 L180,180 Z" fill="rgba(255,255,255,0.05)" />
+                <!-- Eurasia -->
+                <path d="M450,50 L750,50 L780,200 L600,250 L450,150 Z" fill="rgba(255,255,255,0.05)" />
+                
+                <!-- Our Countries as interactive points/shapes -->
+                ${countries.map(c => {
+                    // Position mappings for our countries
+                    let pos = { x: 0, y: 0, size: 25 };
+                    if (c.id === "ZA") { pos.x = 430; pos.y = 320; }
+                    else if (c.id === "US") { pos.x = 180; pos.y = 120; }
+                    else if (c.id === "GB") { pos.x = 420; pos.y = 80; }
+                    else if (c.id === "JP") { pos.x = 720; pos.y = 130; }
+                    else if (c.id === "AE") { pos.x = 520; pos.y = 170; }
+                    else if (c.id === "CH") { pos.x = 450; pos.y = 100; }
+                    else if (c.id === "SG") { pos.x = 650; pos.y = 230; }
+
+                    const isCurrent = state.location.country === c.name;
+                    const isSelected = selectedCountryId === c.id;
+
+                    return `
+                    <g class="country-node" style="cursor:pointer;" 
+                       onclick="selectCountry('${c.id}')"
+                       onmouseover="showMapTooltip(event, '${c.name}', 'Tax: ${c.tax*100}% | Profit: ${c.profit}x')"
+                       onmouseout="hideMapTooltip()">
+                        <circle cx="${pos.x}" cy="${pos.y}" r="${isSelected ? 12 : 8}" 
+                                fill="${c.color}" 
+                                filter="${isSelected ? 'url(#glow)' : ''}"
+                                stroke="white" stroke-width="${isCurrent ? 3 : 1}" 
+                                style="transition: all 0.3s ease;" />
+                        ${isCurrent ? `<circle cx="${pos.x}" cy="${pos.y}" r="15" fill="none" stroke="${c.color}" stroke-width="1" opacity="0.5">
+                            <animate attributeName="r" from="8" to="20" dur="2s" repeatCount="indefinite" />
+                            <animate attributeName="opacity" from="0.5" to="0" dur="2s" repeatCount="indefinite" />
+                        </circle>` : ''}
+                        <text x="${pos.x}" y="${pos.y + 25}" text-anchor="middle" fill="white" style="font-size:10px; font-weight:bold; pointer-events:none; text-shadow: 0 0 5px black;">${c.flag} ${c.name}</text>
+                    </g>
+                    `;
+                }).join("")}
+            </svg>
+            `;
+            container.innerHTML = mapHtml;
+        }
+
+        function showMapTooltip(e, name, stats) {
+            const tooltip = document.getElementById("mapTooltip");
+            tooltip.style.display = "block";
+            tooltip.style.left = (e.offsetX + 15) + "px";
+            tooltip.style.top = (e.offsetY - 40) + "px";
+            document.getElementById("tooltipCountry").innerText = name;
+            document.getElementById("tooltipStats").innerText = stats;
+        }
+
+        function hideMapTooltip() {
+            document.getElementById("mapTooltip").style.display = "none";
+        }
+
+        function selectCountry(id) {
+            selectedCountryId = id;
+            const c = countries.find(x => x.id === id);
+            if (!c) return;
+
+            document.getElementById("noCountrySelected").style.display = "none";
+            document.getElementById("countryInfo").style.display = "block";
+
+            document.getElementById("detailFlag").innerText = c.flag;
+            document.getElementById("detailName").innerText = c.name;
+            document.getElementById("detailTagline").innerText = state.location.country === c.name ? "Current Residence" : "Foreign Territory";
+            document.getElementById("detailTax").innerText = (c.tax * 100) + "%";
+            document.getElementById("detailProfit").innerText = c.profit + "x";
+            document.getElementById("detailLiving").innerText = c.livingCost + "x";
+            document.getElementById("detailVisa").innerText = c.difficulty > 5 ? "High" : (c.difficulty > 2 ? "Medium" : "Low");
+            document.getElementById("detailDesc").innerText = c.desc;
+
+            const migrateBtn = document.getElementById("migrateBtn");
+            if (state.location.country === c.name) {
+                migrateBtn.innerText = "ALREADY RESIDING";
+                migrateBtn.disabled = true;
+                migrateBtn.style.opacity = 0.5;
+            } else {
+                migrateBtn.innerText = "PREPARE MIGRATION";
+                migrateBtn.disabled = false;
+                migrateBtn.style.opacity = 1;
+            }
+
+            renderWorldMap(); // Re-render to show selection glow
+        }
+
+        function renderMigrationTab() {
+            document.getElementById("migPassportStatus").innerText = state.location.passport ? "VALID" : "NONE";
+            document.getElementById("migPassportStatus").style.color = state.location.passport ? "var(--success)" : "var(--danger)";
+            document.getElementById("migActiveVisas").innerText = state.location.visas.join(", ");
+
+            const localSelect = document.getElementById("localLocationSelect");
+            if (localSelect) {
+                localSelect.innerHTML = state.map.discoveredLocations.map(l => 
+                    `<option value="${l}" ${state.map.current === l ? 'selected' : ''}>${l}</option>`
+                ).join("");
+            }
+        }
+
+        function travelToLocalLocation() {
+            const dest = document.getElementById("localLocationSelect").value;
+            if (dest === state.map.current) return logEvent("ℹ️ You are already at " + dest);
+
+            // Simple travel cost
+            const cost = 50;
+            if (state.cash >= cost) {
+                state.cash -= cost;
+                state.map.current = dest;
+                logEvent(`🚗 Traveled to ${dest}. Cost: R${cost}`);
+                updateUI();
+            } else {
+                logEvent("❌ Not enough cash for local travel!");
+            }
+        }
+
+        function handleMigrateAction() {
+            if (!selectedCountryId) return;
+            const dest = countries.find(c => c.id === selectedCountryId);
+            if (!dest) return;
+
+            // Check Passport
+            if (!state.location.passport) {
+                return logEvent("🛂 Migration Denied: You need a valid Passport first! Apply at the Court.", true);
+            }
+
+            // Check Visa
+            if (!state.location.visas.includes(dest.name)) {
+                return logEvent(`🛂 Migration Denied: You don't have a Visa for ${dest.name}. Apply for one in Migration services.`, true);
+            }
+
+            // Travel Cost (Distance based placeholder)
+            const travelCost = Math.floor(2000 * dest.livingCost);
+            if (state.cash < travelCost) {
+                return logEvent(`❌ Migration Failed: You need R${travelCost.toLocaleString()} for travel expenses.`, true);
+            }
+
+            // Confirm Migration
+            if (confirm(`Do you want to migrate to ${dest.name}? \n\nTravel Cost: R${travelCost.toLocaleString()}\nNew Tax Rate: ${dest.tax*100}%\nNew Profit Multiplier: ${dest.profit}x`)) {
+                state.cash -= travelCost;
+                state.location.country = dest.name;
+                state.location.multiplier = dest.profit;
+                state.map.country = dest.name;
+                state.map.current = "International Airport"; // Default arrival point
+                
+                // Discovered locations reset or change based on country?
+                // For simplicity, we'll give them a few basic spots in the new country
+                state.map.discoveredLocations = ["International Airport", "Main Street", "Residential Hub", "Business District"];
+                
+                logEvent(`✈️ Successfully migrated to ${dest.name}! Welcome to your new home.`, true);
+                updateUI();
+                openTab('map');
+            }
+        }
+
+        function renderMapUI() { 
+            document.getElementById("currentLocation").innerText = state.map.current;
+            document.getElementById("currentRegionLabel").innerText = state.location.country + " (" + state.map.current + ")";
+            
+            // If the map dashboard is active, refresh the sub-content
+            const mapDash = document.getElementById("map");
+            if (mapDash && mapDash.classList.contains('active')) {
+                // Determine which sub-tab is active
+                const worldMapVisible = document.getElementById("worldMapTab").style.display !== 'none';
+                if (worldMapVisible) renderWorldMap();
+                else renderMigrationTab();
+            }
+        }
 
         function renderLeaderboard() {
             const tbody = document.getElementById("leaderboardTable").querySelector("tbody");
-            const sorted = [...state.players, { name: "Player", level: state.level, netWorth: state.cash + state.bank }].sort((a, b) => b.netWorth - a.netWorth);
-            tbody.innerHTML = sorted.map((p, i) => `<tr><td>${i + 1}</td><td>${p.name}</td><td>${p.level}</td><td>R${p.netWorth.toLocaleString()}</td></tr>`).join("");
+            if (!tbody) return;
 
-            const myRank = sorted.findIndex(p => p.name === "Player") + 1;
-            document.getElementById("yourRank").innerText = "#" + myRank;
-            document.getElementById("yourNetWorth").innerText = "R" + (state.cash + state.bank).toLocaleString();
+            // Ensure NPCs exist (if loaded from old save)
+            const npcs = [
+                { name: "Elon M.", level: 100, netWorth: 250000000, bank: 50000000, biz: 15, items: 25, investments: 150000000 },
+                { name: "Warren B.", level: 95, netWorth: 180000000, bank: 80000000, biz: 8, items: 10, investments: 90000000 },
+                { name: "Jeff B.", level: 90, netWorth: 150000000, bank: 30000000, biz: 12, items: 30, investments: 100000000 }
+            ];
+
+            // Update NPCs in state if they are missing or old
+            npcs.forEach(npc => {
+                let existing = state.players.find(p => p.name === npc.name);
+                if (!existing) state.players.push(npc);
+                else Object.assign(existing, npc); // Refresh NPC stats
+            });
+
+            // Update actual player stats in the players array
+            const player = state.players.find(p => p.name === "Player");
+            if (player) {
+                player.level = state.level;
+                
+                // Calculate detailed stats for the player
+                let stockValue = (state.stocks.portfolio || []).reduce((sum, p) => {
+                    let m = state.stocks.market.find(x => x.id === p.id);
+                    return sum + (m ? m.price * p.shares : 0);
+                }, 0);
+                let cryptoValue = ((state.crypto.BTC || 0) * cryptoPrices.BTC) + ((state.crypto.ETH || 0) * cryptoPrices.ETH);
+                
+                player.bank = state.bank || 0;
+                player.biz = (state.business.owned || []).length;
+                player.items = (state.inventory || []).length + (state.assets.cars || []).length + (state.home.houses || []).length;
+                player.investments = stockValue + cryptoValue;
+                
+                player.netWorth = (state.cash || 0) + (state.bank || 0) + player.investments + (player.biz * 5000) + (player.items * 1000);
+            }
+
+            // Sort by netWorth
+            const sortedPlayers = [...state.players].sort((a, b) => (b.netWorth || 0) - (a.netWorth || 0));
+
+            tbody.innerHTML = sortedPlayers.map((p, i) => `
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.05); transition: background 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.02)'" onmouseout="this.style.background='transparent'">
+                    <td style="padding:12px;">${i + 1}</td>
+                    <td style="padding:12px;">
+                        <div style="font-weight:bold; color:${p.name === 'Player' ? 'var(--accent)' : 'inherit'}">
+                            ${p.name === 'Player' ? '⭐ You' : p.name}
+                        </div>
+                        <div style="font-size:10px; opacity:0.5;">Level ${p.level || 1}</div>
+                    </td>
+                    <td style="padding:12px; font-weight:bold; color:var(--success);">R${(p.netWorth || 0).toLocaleString()}</td>
+                    <td style="padding:12px; opacity:0.8;">R${(p.bank || 0).toLocaleString()}</td>
+                    <td style="padding:12px; opacity:0.8;">
+                        <span title="Businesses">🏢 ${p.biz || 0}</span> | <span title="Items">📦 ${p.items || 0}</span>
+                    </td>
+                    <td style="padding:12px; opacity:0.8; color:#a78bfa;">R${(p.investments || 0).toLocaleString()}</td>
+                </tr>
+            `).join("");
+
+            // Update Rank Summary
+            const rank = sortedPlayers.findIndex(p => p.name === "Player") + 1;
+            const yourRankEl = document.getElementById("yourRank");
+            if (yourRankEl) yourRankEl.innerText = rank > 0 ? "#" + rank : "-";
+            const yourNetWorthEl = document.getElementById("yourNetWorth");
+            if (yourNetWorthEl) yourNetWorthEl.innerText = "R" + (player ? (player.netWorth || 0).toLocaleString() : "0");
         }
 
         function renderCourt() {
@@ -5381,29 +5721,44 @@
         }
 
         function showVisaModal() {
-            const list = ["London", "New York", "Dubai", "Tokyo"];
-
             document.getElementById("eventIcon").innerText = "🌍";
-            document.getElementById("eventTitle").innerText = "Travel Visa Application";
-            document.getElementById("eventDesc").innerText = "Select a destination to apply for a visa (R1,200 each).";
+            document.getElementById("eventTitle").innerText = "International Visa Bureau";
+            document.getElementById("eventDesc").innerText = "Apply for travel visas to expand your empire globally.";
 
             const actions = document.getElementById("eventActions");
-            actions.innerHTML = list.map(loc => {
-                const hasVisa = state.location.visas.includes(loc);
-                return `<button onclick="applyVisa('${loc}')" ${hasVisa ? 'disabled' : ''}>${loc} ${hasVisa ? '(Owned)' : '(R1,200)'}</button>`;
-            }).join("") + `<button class="secondary" onclick="document.getElementById('eventModal').style.display='none'">Cancel</button>`;
+            actions.innerHTML = countries.filter(c => c.name !== state.location.country).map(c => {
+                const hasVisa = state.location.visas.includes(c.name);
+                return `<button onclick="applyVisa('${c.id}')" ${hasVisa ? 'disabled' : ''}>
+                    ${c.flag} ${c.name} ${hasVisa ? '(Active)' : `(R${c.visaCost.toLocaleString()})`}
+                </button>`;
+            }).join("") + `<button class="secondary" onclick="document.getElementById('eventModal').style.display='none'">Exit Bureau</button>`;
 
             document.getElementById("eventModal").style.display = "flex";
         }
 
-        function applyVisa(dest) {
-            if (state.cash >= 1200) {
-                state.cash -= 1200;
-                if (!state.location.visas.includes(dest)) state.location.visas.push(dest);
-                logEvent(`🌍 Obtained Visa for ${dest}! (-R1,200)`);
+        function applyVisa(countryId) {
+            const dest = countries.find(c => c.id === countryId);
+            if (!dest) return;
+
+            if (state.cash < dest.visaCost) {
+                return logEvent(`❌ Visa Denied: You need R${dest.visaCost.toLocaleString()} for the application fee.`, true);
+            }
+
+            state.cash -= dest.visaCost;
+            
+            // Approval chance based on Smarts and Difficulty
+            const approvalChance = Math.max(0.1, (state.smarts / 100) - (dest.difficulty * 0.05));
+            
+            if (Math.random() <= approvalChance) {
+                if (!state.location.visas.includes(dest.name)) state.location.visas.push(dest.name);
+                logEvent(`✅ Visa Approved! You are now authorized to travel to ${dest.name}.`, true);
                 document.getElementById("eventModal").style.display = "none";
-                updateUI();
-            } else logEvent("❌ Not enough cash for Visa!");
+            } else {
+                logEvent(`❌ Visa Rejected: The ${dest.name} embassy denied your application. Fee non-refundable.`, true);
+                state.happiness = Math.max(0, state.happiness - 10);
+            }
+            
+            updateUI();
         }
 
         function payTaxes() {
@@ -5533,9 +5888,11 @@
         function hireManager(idx) { if (state.cash >= 1000) { state.cash -= 1000; state.business.owned[idx].managers++; state.business.managers++; logEvent("Hired Manager"); updateUI(); } }
         function upgradeBusiness(idx) { if (state.cash >= 500) { state.cash -= 500; state.business.owned[idx].level++; logEvent("Upgraded Business"); updateUI(); } }
         function collectBusinessIncome() {
+            const profitMult = state.location.multiplier || 1.0;
             let total = state.business.owned.reduce((sum, b) => sum + (b.baseIncome * b.level), 0);
-            state.cash += total;
-            logEvent(`Collected R${total} from Businesses`);
+            let finalProfit = Math.floor(total * profitMult);
+            state.cash += finalProfit;
+            logEvent(`Collected R${finalProfit.toLocaleString()} from Businesses (${profitMult}x Regional Bonus)`);
             updateUI();
         }
 
@@ -5639,9 +5996,18 @@
         }, 1000);
 
         setInterval(() => {
+            // --- COUNTRY METADATA ---
+            const currentCountry = countries.find(c => c.name === state.location.country) || countries[0];
+            const profitMult = state.location.multiplier || 1.0;
+            const taxRate = currentCountry.tax ? currentCountry.tax : 0.15;
+
             // --- BUSINESS INCOME ---
+            // Business income is boosted by the regional profit multiplier
             let bizInc = state.business.owned.reduce((sum, b) => sum + (b.baseIncome || 100) * (b.level || 1), 0);
-            state.cash += bizInc / 10;
+            let regionalBizInc = bizInc * profitMult;
+            state.cash += regionalBizInc / 10;
+            
+            // --- MARKET VOLATILITY ---
             state.stocks.market.forEach(s => s.price *= (0.95 + Math.random() * 0.1));
 
             // --- CRYPTO VOLATILITY ---
@@ -5656,9 +6022,16 @@
 
                 if (state.jobs.payProgress >= 99.9) {
                     let salary = spec.pay * 20;
-                    state.cash += salary;
+                    
+                    // APPLY REGIONAL TAXES
+                    let taxAmount = Math.floor(salary * taxRate);
+                    let netSalary = salary - taxAmount;
+                    
+                    state.cash += netSalary;
+                    state.taxes.unpaid = (state.taxes.unpaid || 0) + taxAmount; // Track unpaid taxes for the government
+                    
                     state.jobs.payProgress = 0;
-                    logEvent(`💰 SALARY DAY: Received R${salary.toLocaleString()} as ${spec.name}!`);
+                    logEvent(`💰 SALARY DAY: Received R${netSalary.toLocaleString()} (Tax: R${taxAmount.toLocaleString()}) as ${spec.name}!`);
                     gainXP(25);
                     state.happiness = Math.max(0, state.happiness - 5);
                 }
